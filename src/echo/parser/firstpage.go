@@ -24,12 +24,13 @@ func ParseFirstPage(contents []byte, url string, name string) engine.ParseResult
 		totalNum := web.Pages.TotalCount.GetStrInt()
 		num := web.Pages.PageSize.GetStrInt()
 		urls := urlfactory.GetUrlsByCal(config.ChannelListApiUrlModel, totalNum, num)
-		requests := make([]engine.Request, len(urls))
 		for i := 0; i < util.GetPageNum(totalNum, num); i++ {
-			request := engine.Request{Url: urls[i], ParserFunc: ParseChannelList}
-			requests[i] = request
+			result.Requests = append(result.Requests,
+				engine.Request{
+					Url:        urls[i],
+					ParserFunc: ParseChannelList,
+				})
 		}
-		result.Requests = requests
 
 	case config.ParseSongList:
 		web := model.ChannelWebPage{}
@@ -41,13 +42,13 @@ func ParseFirstPage(contents []byte, url string, name string) engine.ParseResult
 		totalNum := web.Pages.TotalCount.GetStrInt()
 		num := web.Pages.PageSize.GetStrInt()
 		urls := urlfactory.GetUrlsByCal(url, totalNum, num)
-		requests := make([]engine.Request, len(urls))
 		for i := 0; i < util.GetPageNum(totalNum, num); i++ {
-			request := engine.Request{Url: urls[i], ParserFunc: ParseSongList}
-			requests[i] = request
+			result.Requests = append(result.Requests,
+				engine.Request{
+					Url:        urls[i],
+					ParserFunc: ParseSongList,
+				})
 		}
-		result.Requests = requests
-
 	}
 
 	return result

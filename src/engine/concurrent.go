@@ -1,10 +1,9 @@
 package engine
 
-import "fmt"
-
 type ConcurrentEngine struct {
 	Scheduler   Scheduler
 	WorkerCount int
+	ItemChan    chan Item
 }
 
 type Scheduler interface {
@@ -27,20 +26,26 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 		createWorker(e.Scheduler.WorkerChan(), out, e.Scheduler)
 	}
 
-	for _, r := range seeds {
-		e.Scheduler.Submit(r)
+	for _, request := range seeds {
+		if isDeplicate(request.Url) {
+			continue
+		}
+		e.Scheduler.Submit(request)
 	}
 
-	itemCount := 0
 	for {
 		result := <-out
 
 		for _, item := range result.Items {
-			fmt.Printf("Got Item #%d : name = %s , id = %s\r\n url = %s\r\n", itemCount, item.Type, item.Id, item.Url)
-			itemCount++
+			go func(i Item) {
+				e.ItemChan <- i
+			}(item)
 		}
 
 		for _, request := range result.Requests {
+			if isDeplicate(request.Url) {
+				continue
+			}
 			e.Scheduler.Submit(request)
 		}
 	}
@@ -58,4 +63,14 @@ func createWorker(in chan Request, out chan ParseResult, ready ReadyNotifier) {
 			out <- result
 		}
 	}()
+}
+
+var visitedUrls = make(map[string]bool)
+
+func isDeplicate(url string) bool {
+	if visitedUrls[url] {
+		return true
+	}
+	visitedUrls[url] = true
+	return false
 }

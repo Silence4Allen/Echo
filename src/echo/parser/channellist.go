@@ -17,19 +17,40 @@ func ParseChannelList(contents []byte, url string) engine.ParseResult {
 	}
 	//channels
 	channels := web.Channels
-	urls := make([]string, len(channels))
 	result := engine.ParseResult{}
 	for i := 0; i < len(channels); i++ {
 		channel := channels[i]
-		//name := channel.Name
-		id := channel.Id
-		url := config.ChannelApiUrlModel + id.Str()
-		urls[i] = url
-		//result.Items = append(result.Items, engine.Item{Type: name, Id: id.Str(), Url: url})
-		result.Requests = append(result.Requests, engine.Request{Url: url, ParserFunc: func(contents []byte, url string) engine.ParseResult {
-			return ParseFirstPage(contents, url, config.ParseSongList)
-		}})
+		channelID := channel.Id.Str()
+
+		urlNormal := config.ChannelApiUrlModelNormal + channelID
+		urlHot := config.ChannelApiUrlModelHot + channelID
+		urlNew := config.ChannelApiUrlModelNew + channelID
+
+		result = appendRequests(urlNormal, result)
+		result = appendRequests(urlHot, result)
+		result = appendRequests(urlNew, result)
+		//channel info
+		//result.Items = append(result.Items,
+		//	engine.Item{
+		//		//Name:           channel.Name,
+		//		Id:          channelID,
+		//		Url:         config.ChnnelUrlModel + channelID,
+		//		Type:        "echo",
+		//		PayloadType: "channel",
+		//		//ItemSourcePath: url,
+		//		Payload: channel,
+		//	})
 	}
 
+	return result
+}
+
+func appendRequests(url string, result engine.ParseResult) engine.ParseResult {
+	result.Requests = append(result.Requests,
+		engine.Request{
+			Url: url,
+			ParserFunc: func(contents []byte, url string) engine.ParseResult {
+				return ParseFirstPage(contents, url, config.ParseSongList)
+			}})
 	return result
 }

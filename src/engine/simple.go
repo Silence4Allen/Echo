@@ -30,7 +30,7 @@ func (e SimpleEngine) Run(seeds ...Request) {
 		}
 
 		for _, item := range parserResult.Items {
-			fmt.Printf("Got Item #%d : name = %s , id = %s\r\n url = %s\r\n", itemCount, item.Type, item.Id, item.Url)
+			fmt.Printf("Got Item #%d : id = %s\r\n url = %s\r\n", itemCount, item.Id, item.Url)
 			itemCount++
 		}
 

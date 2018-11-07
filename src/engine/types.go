@@ -11,14 +11,17 @@ type Request struct {
 
 /**
 Url:the url of this Item
-Type:maybe the name or the type of this Item
+Name:maybe the name or the type of this Item
 Id:the id of this Item
 Payload:to save other data
  */
 type Item struct {
-	Url     string
-	Type    string
-	Id      string
+	//Name           string
+	Id          string
+	Url         string
+	Type        string
+	PayloadType string
+	//ItemSourcePath string
 	Payload interface{}
 }
 

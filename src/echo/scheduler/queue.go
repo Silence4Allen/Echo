@@ -12,6 +12,7 @@ func (s *QueueScheduler) WorkerChan() chan engine.Request {
 }
 
 func (s *QueueScheduler) Submit(r engine.Request) {
+	//remove the url which has been visited
 	s.requestChan <- r
 }
 
